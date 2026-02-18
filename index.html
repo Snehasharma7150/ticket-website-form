@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customer Support</title>
+</head>
+<body>
+
+<h2>Submit a Support Request</h2>
+
+<form id="ticketForm">
+
+  <input type="text" id="name" placeholder="Your Name" required><br><br>
+
+  <input type="email" id="email" placeholder="Your Email" required><br><br>
+
+  <input type="text" id="subject" placeholder="Subject" required><br><br>
+
+  <textarea id="description" placeholder="Describe your issue" required></textarea><br><br>
+
+  <label>Product:</label>
+  <select id="product">
+    <option value="CRM">CRM</option>
+    <option value="Mobile App">Mobile App</option>
+    <option value="Website">Website</option>
+  </select><br><br>
+
+  <label>Issue Type:</label>
+  <select id="issueType">
+    <option value="Technical">Technical</option>
+    <option value="Billing">Billing</option>
+    <option value="General">General</option>
+  </select><br><br>
+
+  <button type="submit">Submit Ticket</button>
+
+</form>
+
+<script>
+document.getElementById("ticketForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  fetch("https://d3v-astonous-28503.zendesk.com/api/v2/tickets.json", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Basic " + btoa("YOUR_EMAIL/token:YOUR_API_TOKEN")
+    },
+    body: JSON.stringify({
+      ticket: {
+        subject: document.getElementById("subject").value,
+        comment: {
+          body: document.getElementById("description").value
+        },
+        requester: {
+          name: document.getElementById("name").value,
+          email: document.getElementById("email").value
+        },
+        priority: "normal",
+        custom_fields: [
+          {
+            id: PRODUCT_FIELD_ID,
+            value: document.getElementById("product").value
+          },
+          {
+            id: ISSUE_TYPE_FIELD_ID,
+            value: document.getElementById("issueType").value
+          }
+        ]
+      }
+    })
+  })
+  .then(response => response.json())
+  .then(data => alert("Ticket submitted successfully"))
+  .catch(error => alert("Error creating ticket"));
+});
+</script>
+
+</body>
+</html>
